@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace表示命名空间 -->
+<mapper namespace="com.popse.dao.CourseMapper">
+
+    <!-- 结果映射集 -->
+    <resultMap id="courseMap" type="Course">
+        <result property="courseId" column="id"/>
+        <result property="courseName" column="name"/>
+        <result property="courseHours" column="hours"/>
+        <result property="academyId" column="academy_id"/>
+    </resultMap>
+
+    <!-- 根据课程名模糊查询课程信息列表 或 查询所有课程信息列表-->
+    <select id="findCourseByName" parameterType="String" resultMap="courseMap">
+        select * from s_course where name like concat('%',#{courseName},'%')
+    </select>
+
+    <!-- 查找id不为courseId但课程名为courseName的数据-->
+    <select id="findCourseByIdAndName" resultMap="courseMap">
+        select * from s_course where id != #{arg0} and name = #{arg1}
+    </select>
+
+    <!-- 根据课程ID获取课程信息 -->
+    <select id="findCourseById" parameterType="int" resultMap="courseMap">
+        select * from s_course where id = #{courseId}
+    </select>
+
+    <!-- 根据学院ID获取课程信息列表 -->
+    <select id="findCourseByAcademyId" parameterType="int" resultMap="courseMap">
+        select * from s_course where academy_id = #{academyId}
+    </select>
+
+    <!-- 添加课程信息-->
+    <insert id="addCourse" parameterType="Course">
+        insert into s_course(id, name, hours, academy_id) values (#{courseId}, #{courseName}, #{courseHours}, #{academyId})
+    </insert>
+
+    <!-- 更新课程信息-->
+    <update id="updateCourse" parameterType="Course">
+        update s_course set name = #{courseName}, hours = #{courseHours}, academy_id = #{academyId} where id = #{courseId}
+    </update>
+
+    <!-- 删除课程信息-->
+    <delete id="deleteCourse" parameterType="int">
+        delete from s_course where id = #{courseId}
+    </delete>
+
+    <resultMap id="BaseMap" type="java.util.Map">
+        <id column="id" property="courseId" jdbcType="INTEGER"/>
+        <result column="name" property="courseName" jdbcType="VARCHAR"/>
+        <result column="hours" property="courseHours" jdbcType="INTEGER"/>
+        <result column="academy_id" property="academyId" jdbcType="INTEGER"/>
+        <result column="academy_name" property="academyName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findCourseAndAcademyById" parameterType="int" resultMap="BaseMap">
+        select s.*, a.name as academy_name from s_course s left join s_academy a on s.academy_id = a.id where s.id=#{id}
+    </select>
+
+    <select id="findCourseAndAcademyAll"  resultMap="BaseMap">
+        select s.*, a.name as academy_name from s_course s left join s_academy a on s.academy_id = a.id
+    </select>
+</mapper>
